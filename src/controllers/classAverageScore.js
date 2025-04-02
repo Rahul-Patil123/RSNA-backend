@@ -13,17 +13,19 @@ const getClassAverageACScore = async (req, res) => {
 
         // SQL Query: Fetch AC ID, AC Name, Subject, and Average Score
         const query = `
-            SELECT ac.id AS ac_id, ac.name AS ac_name, ac.subject, AVG(ascore.value) AS average_score
-            FROM ac_scores ascore
-            JOIN students_records sr ON ascore.student = sr.id
-            JOIN assessment_criterias ac ON ascore.ac = ac.id
-            WHERE sr.year = ?
-              AND sr.class = ?
-              AND sr.section = ?
-              AND ac.quarter = ?
-              ${subject ? "AND ac.subject = ?" : ""}  -- Filter by subject only if provided
-            GROUP BY ac.id, ac.name, ac.subject
-            ORDER BY ac.id;
+            SELECT ac.id AS ac_id, ac.name AS ac_name, ac.subject, 
+       SUM(ascore.value) / COUNT(ascore.value) AS average_score  -- Correctly count only students with recorded scores
+FROM students_records sr
+LEFT JOIN ac_scores ascore ON sr.id = ascore.student
+JOIN assessment_criterias ac ON ascore.ac = ac.id
+WHERE sr.year = ?
+  AND sr.class = ?
+  AND sr.section = ?
+  AND ac.quarter = ?
+  ${subject ? "AND ac.subject = ?" : ""}  -- Filter by subject only if provided
+GROUP BY ac.id, ac.name, ac.subject
+ORDER BY ac.id;
+
         `;
 
         // Query parameters
@@ -41,7 +43,7 @@ const getClassAverageACScore = async (req, res) => {
             ac_id: row.ac_id,
             ac_name: row.ac_name,
             subject: row.subject,
-            average_score: parseFloat(row.average_score.toFixed(3)) // Round to 3 decimal places
+            average_score: parseFloat(row.average_score)
         }));
 
         res.status(200).json({ class_ac_averages: result });
