@@ -15,7 +15,8 @@ import { saveToken,sendNotification } from "../controllers/sendNotification.js";
 import {verifyToken,getUserRole} from "../controllers/userVerfication.js";
 import getStudentReport from "../controllers/studentReport.js";
 import getMappingTree from "../controllers/mappingTree.js";
-
+import getTeacherDashboard  from "../controllers/TeacherDashboard.js";
+ 
 const routers = express.Router();
 
 routers.get('/students',getStudents)
@@ -36,6 +37,7 @@ routers.get('/class-overview-lo-avg', getClassAverageLO)
 routers.get('/class-overview-ro-avg', getClassAverageRO)
 routers.get('/student-report', getStudentReport)
 routers.get('/mapping-tree', getMappingTree)
+routers.get('/teacher-dashboard', getTeacherDashboard)
 
 routers.post("/teachers", createTeacher);
 routers.post('/students',createStudent)

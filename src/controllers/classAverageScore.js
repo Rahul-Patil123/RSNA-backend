@@ -3,7 +3,6 @@ import db from "../config/db.js";
 const getClassAverageACScore = async (req, res) => {
     try {
         const { subject, classname, year, quarter, section } = req.headers;
-
         // Validate required headers
         if (!classname || !year || !quarter || !section) {
             return res.status(400).json({
@@ -14,17 +13,17 @@ const getClassAverageACScore = async (req, res) => {
         // SQL Query: Fetch AC ID, AC Name, Subject, and Average Score
         const query = `
             SELECT ac.id AS ac_id, ac.name AS ac_name, ac.subject, 
-       SUM(ascore.value) / COUNT(ascore.value) AS average_score  -- Correctly count only students with recorded scores
-FROM students_records sr
-LEFT JOIN ac_scores ascore ON sr.id = ascore.student
-JOIN assessment_criterias ac ON ascore.ac = ac.id
-WHERE sr.year = ?
-  AND sr.class = ?
-  AND sr.section = ?
-  AND ac.quarter = ?
-  ${subject ? "AND ac.subject = ?" : ""}  -- Filter by subject only if provided
-GROUP BY ac.id, ac.name, ac.subject
-ORDER BY ac.id;
+            SUM(ascore.value) / COUNT(ascore.value) AS average_score  -- Correctly count only students with recorded scores
+            FROM students_records sr
+            LEFT JOIN ac_scores ascore ON sr.id = ascore.student
+            JOIN assessment_criterias ac ON ascore.ac = ac.id
+            WHERE sr.year = ?
+            AND sr.class = ?
+            AND sr.section = ?
+            AND ac.quarter = ?
+            ${subject ? "AND ac.subject = ?" : ""}
+            GROUP BY ac.id, ac.name, ac.subject
+            ORDER BY ac.id;
 
         `;
 
